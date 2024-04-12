@@ -1,3 +1,7 @@
+from api.v1.banners.serializers.get_banner_list import (
+    GetBannersRequest,
+    GetBannersResponse,
+)
 from api.v1.banners.serializers.get_user_banner import GetUserBannerRequest
 from fastapi import APIRouter, Depends, Request, status
 from services.banner_service import BannerService
@@ -44,3 +48,17 @@ async def user_banner(
             error="Внутренняя ошибка сервера",
         )
     return OkResponse.new(status_code=status.HTTP_200_OK, payload=content)
+
+
+@banners.get("/banner")
+async def get_banners(
+    request: Request,
+    params: GetBannersRequest = Depends(),
+    user: User = Depends(get_user_or_401),
+    banner_service: BannerService = Depends(get_banner_service),
+):
+    banners_list: list[dict] = await banner_service.get_banner_list(
+        user=user, params=params
+    )
+    data = [GetBannersResponse(**banner_map) for banner_map in banners_list]
+    return OkResponse.new(status_code=status.HTTP_200_OK, payload=data)

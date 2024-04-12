@@ -1,3 +1,5 @@
+from api.v1.banners.serializers.get_banner_list import GetBannersRequest
+from sqlalchemy.engine.row import RowMapping
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from storages.banners.cache.cache_repo import BannerCacheRepository
@@ -5,8 +7,11 @@ from storages.banners.db.exceptions import (
     BannerNotFoundException,
     BannersConsistenceBrokenException,
 )
-from storages.banners.db.query_builders.get_by_feature_and_tag_id_builder import (
+from storages.banners.db.query_builders.get_banner_by_feature_and_tag_id import (
     GetUserBannerQueryBuilder,
+)
+from storages.banners.db.query_builders.get_banner_list_query import (
+    GetUserBannerListQueryBuilder,
 )
 
 
@@ -34,3 +39,17 @@ class BannerRepository:
             feature_id=feature_id, tag_id=tag_id, banner_content=banner.content
         )
         return banner.content
+
+    async def get_banner_list(
+        self, *, user: "User", params: GetBannersRequest
+    ) -> list[RowMapping]:
+        query = GetUserBannerListQueryBuilder.build(
+            user=user,
+            feature_id=params.feature_id,
+            tag_id=params.tag_id,
+            limit=params.limit,
+            offset=params.offset,
+        )
+        result = await self.db_connection.execute(query)
+        res: list[RowMapping] = [row._mapping for row in result.all()]  # noqa
+        return res
