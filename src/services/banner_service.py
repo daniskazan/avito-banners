@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from api.v1.banners.serializers.create_banner import BannerCreateRequest
 from api.v1.banners.serializers.get_banner_list import GetBannersRequest
 from storages.banners.db.db_repo import BannerRepository
 
@@ -21,3 +22,6 @@ class BannerService:
 
     async def get_banner_list(self, *, user: "User", params: GetBannersRequest):
         return await self.banner_repo.get_banner_list(user=user, params=params)
+
+    async def create_banner(self, *, params: BannerCreateRequest):
+        return await self.banner_repo.create_banner(params=params)

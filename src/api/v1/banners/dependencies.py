@@ -29,6 +29,8 @@ async def get_user_or_401(api_token: str = Depends(api_key_header)) -> User:
         payload = jwt.decode(api_token, "your-256-bit-secret", algorithms=["HS256"])
     except jwt.ExpiredSignatureError as exc:
         raise AuthTokenRequiredException from exc
+    except jwt.InvalidSignatureError as exc:
+        raise AuthTokenRequiredException from exc
 
     user = User(**payload)
     return user

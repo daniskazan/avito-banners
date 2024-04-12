@@ -1,3 +1,7 @@
+from api.v1.banners.serializers.create_banner import (
+    BannerCreateRequest,
+    BannerCreateResponse,
+)
 from api.v1.banners.serializers.get_banner_list import (
     GetBannersRequest,
     GetBannersResponse,
@@ -8,11 +12,15 @@ from services.banner_service import BannerService
 from storages.banners.db.exceptions import (
     BannerNotFoundException,
     BannersConsistenceBrokenException,
+    BannerWithSuchTagAndFeatureAlreadyExists,
+    FeatureNotFoundException,
+    TagNotFoundException,
 )
 from utils.generic_response import BadResponse, OkResponse
 
 from src.api.v1.banners.dependencies import (
     User,
+    admin_only,
     get_banner_service,
     get_user_or_401,
 )
@@ -62,3 +70,26 @@ async def get_banners(
     )
     data = [GetBannersResponse(**banner_map) for banner_map in banners_list]
     return OkResponse.new(status_code=status.HTTP_200_OK, payload=data)
+
+
+@banners.post("/banner")
+async def create_banner(
+    request: Request,
+    body: BannerCreateRequest,
+    banner_service: BannerService = Depends(get_banner_service),
+    user: User = Depends(admin_only),
+):
+    try:
+        banner_id = await banner_service.create_banner(params=body)
+    except (
+        TagNotFoundException,
+        FeatureNotFoundException,
+        BannerWithSuchTagAndFeatureAlreadyExists,
+    ):
+        return BadResponse.new(
+            status_code=status.HTTP_400_BAD_REQUEST, error="Некорректные данные"
+        )
+    return OkResponse.new(
+        status_code=status.HTTP_201_CREATED,
+        payload=BannerCreateResponse(banner_id=banner_id),
+    )

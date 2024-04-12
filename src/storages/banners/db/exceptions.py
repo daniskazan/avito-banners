@@ -4,3 +4,15 @@ class BannerNotFoundException(Exception):
 
 class BannersConsistenceBrokenException(Exception):
     pass
+
+
+class BannerWithSuchTagAndFeatureAlreadyExists(Exception):
+    pass
+
+
+class TagNotFoundException(Exception):
+    pass
+
+
+class FeatureNotFoundException(Exception):
+    pass
