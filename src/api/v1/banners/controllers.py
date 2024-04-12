@@ -7,6 +7,7 @@ from api.v1.banners.serializers.get_banner_list import (
     GetBannersResponse,
 )
 from api.v1.banners.serializers.get_user_banner import GetUserBannerRequest
+from api.v1.banners.serializers.update_banner import BannerPartialUpdateRequest
 from fastapi import APIRouter, Depends, Request, status
 from services.banner_service import BannerService
 from storages.banners.db.exceptions import (
@@ -93,3 +94,27 @@ async def create_banner(
         status_code=status.HTTP_201_CREATED,
         payload=BannerCreateResponse(banner_id=banner_id),
     )
+
+
+@banners.patch("/banner/")
+async def update_banner(
+    request: Request,
+    banner_id: int,
+    body: BannerPartialUpdateRequest,
+    banner_service: BannerService = Depends(get_banner_service),
+    user: User = Depends(admin_only),
+):
+    try:
+        await banner_service.update_banner(banner_id=banner_id, payload=body)
+    except (
+        TagNotFoundException,
+        BannerWithSuchTagAndFeatureAlreadyExists,
+    ):
+        return BadResponse.new(
+            status_code=status.HTTP_400_BAD_REQUEST, error="Некорректные данные."
+        )
+    except BannerNotFoundException:
+        return BadResponse.new(
+            status_code=status.HTTP_404_NOT_FOUND, error="Баннер не найден"
+        )
+    return OkResponse.new(status_code=status.HTTP_204_NO_CONTENT, payload=None)

@@ -1,5 +1,6 @@
 from api.v1.banners.serializers.create_banner import BannerCreateRequest
 from api.v1.banners.serializers.get_banner_list import GetBannersRequest
+from api.v1.banners.serializers.update_banner import BannerPartialUpdateRequest
 from sqlalchemy import select
 from sqlalchemy.engine.row import RowMapping
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
@@ -49,6 +50,12 @@ class BannerRepository:
         )
         return banner.content
 
+    async def get_by_banner_id(self, *, banner_id: int) -> BannerORM:
+        banner = await self.db_connection.get(BannerORM, {"id": banner_id})
+        if not banner:
+            raise BannerNotFoundException
+        return banner
+
     async def get_banner_list(
         self, *, user: "User", params: GetBannersRequest
     ) -> list[RowMapping]:
@@ -96,3 +103,51 @@ class BannerRepository:
         self.db_connection.add(banner)
         await self.db_connection.commit()
         return banner.id
+
+    async def update_banner(
+        self, *, banner_id: int, payload: BannerPartialUpdateRequest
+    ):
+        banner_to_update: BannerORM = await self.get_by_banner_id(banner_id=banner_id)
+
+        payload = payload.model_dump(exclude_none=True)
+        feature_id, tag_ids = payload.get("feature_id"), payload.get("banner_tag_ids")
+        if feature_id and tag_ids:
+            check_banner_exists_query = CheckBannerExistsQueryBuilder.build(
+                feature_id=feature_id, tag_ids=tag_ids
+            )
+
+            try:
+                existing_banner = (
+                    (await self.db_connection.execute(check_banner_exists_query))
+                    .unique()
+                    .scalar_one()
+                )
+            except NoResultFound:
+                raise BannerNotFoundException from NoResultFound
+            if existing_banner.id != banner_to_update.id:
+                raise BannerWithSuchTagAndFeatureAlreadyExists
+
+        if tag_ids:
+            tags_to_add = (
+                (
+                    await self.db_connection.execute(
+                        select(TagORM).where(TagORM.id.in_(tag_ids))
+                    )
+                )
+                .unique()
+                .scalars()
+                .all()
+            )
+            if len(tags_to_add) != len(tag_ids):
+                raise TagNotFoundException
+
+            banner_to_update.tags.clear()
+            for tag in tags_to_add:
+                banner_to_update.tags.append(tag)
+
+        # обновляем оставшиеся поля, помимо m2m
+        for field, value in payload.items():
+            setattr(banner_to_update, field, value)
+        self.db_connection.add(banner_to_update)
+        await self.db_connection.commit()
+        return None

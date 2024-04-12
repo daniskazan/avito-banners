@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from api.v1.banners.serializers.create_banner import BannerCreateRequest
 from api.v1.banners.serializers.get_banner_list import GetBannersRequest
+from api.v1.banners.serializers.update_banner import BannerPartialUpdateRequest
 from storages.banners.db.db_repo import BannerRepository
 
 
@@ -25,3 +26,13 @@ class BannerService:
 
     async def create_banner(self, *, params: BannerCreateRequest):
         return await self.banner_repo.create_banner(params=params)
+
+    async def update_banner(
+        self, *, banner_id: int, payload: BannerPartialUpdateRequest
+    ):
+        return await self.banner_repo.update_banner(
+            banner_id=banner_id, payload=payload
+        )
+
+    async def delete_banner(self, *, banner_id: int):
+        pass
