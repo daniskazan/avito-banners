@@ -151,3 +151,8 @@ class BannerRepository:
         self.db_connection.add(banner_to_update)
         await self.db_connection.commit()
         return None
+
+    async def delete_banner(self, *, banner_id: int) -> None:
+        banner = await self.get_by_banner_id(banner_id=banner_id)
+        await self.db_connection.delete(banner)
+        await self.db_connection.commit()

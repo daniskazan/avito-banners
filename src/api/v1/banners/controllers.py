@@ -118,3 +118,19 @@ async def update_banner(
             status_code=status.HTTP_404_NOT_FOUND, error="Баннер не найден"
         )
     return OkResponse.new(status_code=status.HTTP_204_NO_CONTENT, payload=None)
+
+
+@banners.delete("/banner")
+async def delete_banner(
+    request: Request,
+    banner_id: int,
+    banner_service: BannerService = Depends(get_banner_service),
+    user: User = Depends(admin_only),
+):
+    try:
+        await banner_service.delete_banner(banner_id=banner_id)
+    except BannerNotFoundException:
+        return BadResponse.new(
+            status_code=status.HTTP_404_NOT_FOUND, error="Баннер не найден"
+        )
+    return OkResponse.new(status_code=status.HTTP_204_NO_CONTENT, payload=None)
