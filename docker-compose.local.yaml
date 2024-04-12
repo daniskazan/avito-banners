@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - pg
+    ports:
+      - "8000:8000"
+    container_name: api-banner-local
+    environment:
+      - DB_HOST=pg
+    networks:
+      - banner-network
+  pg:
+    image: postgres:16.1-alpine
+    environment:
+      - POSTGRES_USER=banner
+      - POSTGRES_PASSWORD=banner
+      - POSTGRES_DB=banner
+    healthcheck:
+      test: pg_isready -U banner -d banner
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    container_name: pg-banner-local
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./infrastructure/postgres-data:/var/lib/postgresql/data:cached
+    networks:
+      - banner-network
+
+networks:
+  banner-network:

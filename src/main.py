@@ -10,9 +10,12 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from api.auth_exceptions import AuthTokenRequiredException
+from utils.generic_response import APIResponse
+
 
 app = FastAPI(
     title="Avito Tech Banner Service",
+    default_response_class=APIResponse
 )
 
 
