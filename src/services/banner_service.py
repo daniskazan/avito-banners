@@ -36,3 +36,7 @@ class BannerService:
 
     async def delete_banner(self, *, banner_id: int):
         await self.banner_repo.delete_banner(banner_id=banner_id)
+
+    async def get_banner_versions_list(self, *, banner_id: int):
+        versions = await self.banner_repo.get_banner_versions_list(banner_id=banner_id)
+        return versions

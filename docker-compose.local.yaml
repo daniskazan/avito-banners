@@ -10,6 +10,8 @@ services:
     ports:
       - "8000:8000"
     container_name: api-banner-local
+    volumes:
+      - "./:/app"
     environment:
       - DB_HOST=pg
     networks:

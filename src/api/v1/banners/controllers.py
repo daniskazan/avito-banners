@@ -1,3 +1,9 @@
+from api.v1.banners.dependencies import (
+    User,
+    admin_only,
+    get_banner_service,
+    get_user_or_401,
+)
 from api.v1.banners.serializers.create_banner import (
     BannerCreateRequest,
     BannerCreateResponse,
@@ -5,6 +11,9 @@ from api.v1.banners.serializers.create_banner import (
 from api.v1.banners.serializers.get_banner_list import (
     GetBannersRequest,
     GetBannersResponse,
+)
+from api.v1.banners.serializers.get_banner_version_history import (
+    GetBannerVersionHistoryResponse,
 )
 from api.v1.banners.serializers.get_user_banner import GetUserBannerRequest
 from api.v1.banners.serializers.update_banner import BannerPartialUpdateRequest
@@ -18,13 +27,6 @@ from storages.banners.db.exceptions import (
     TagNotFoundException,
 )
 from utils.generic_response import BadResponse, OkResponse
-
-from src.api.v1.banners.dependencies import (
-    User,
-    admin_only,
-    get_banner_service,
-    get_user_or_401,
-)
 
 banners = APIRouter(prefix="/banners", tags=["Banners"])
 
@@ -137,3 +139,27 @@ async def delete_banner(
             status_code=status.HTTP_404_NOT_FOUND, error="Баннер не найден"
         )
     return OkResponse.new(status_code=status.HTTP_204_NO_CONTENT, payload=None)
+
+
+@banners.get("/history/{banner_id}")
+async def get_banner_history(
+    request: Request,
+    banner_id: int,
+    # user: User = Depends(admin_only),
+    banner_service: BannerService = Depends(get_banner_service),
+):
+    try:
+        versions_list = await banner_service.get_banner_versions_list(
+            banner_id=banner_id
+        )
+    except BannerNotFoundException:
+        return BadResponse.new(
+            status_code=status.HTTP_404_NOT_FOUND, error="Баннер не найден"
+        )
+    return OkResponse.new(
+        status_code=status.HTTP_200_OK,
+        payload=[
+            GetBannerVersionHistoryResponse(**version.__dict__)
+            for version in versions_list
+        ],
+    )

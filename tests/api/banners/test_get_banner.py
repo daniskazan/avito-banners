@@ -4,13 +4,13 @@ from httpx import AsyncClient
 
 async def test_get_banner_auth_client(app: FastAPI, auth_client: AsyncClient):
     response = await auth_client.get(
-        url=app.url_path_for("banners:user_banner"),
+        url=app.url_path_for("banners:user-banner"),
         params={"feature_id": 111, "tag_id": 111, "use_last_revision": True},
     )
     assert response.status_code == 404
 
     response = await auth_client.get(
-        url=app.url_path_for("banners:user_banner"),
+        url=app.url_path_for("banners:user-banner"),
         params={"feature_id": 111, "tag_id": 111, "use_last_revision": False},
     )
     assert response.status_code == 200

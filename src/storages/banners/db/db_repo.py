@@ -22,7 +22,7 @@ from storages.banners.db.query_builders.get_banner_by_feature_and_tag_id import 
 from storages.banners.db.query_builders.get_banner_list_query import (
     GetUserBannerListQueryBuilder,
 )
-from storages.models import BannerORM, FeatureORM, TagORM
+from storages.models import BannerORM, BannerVersionHistory, FeatureORM, TagORM
 
 
 class BannerRepository:
@@ -99,6 +99,14 @@ class BannerRepository:
             content=params.content,
             is_active=params.is_active,
         )
+        banner.versions = [
+            BannerVersionHistory(
+                banner=banner,
+                feature_id=banner.feature_id,
+                content=banner.content,
+                tag_ids=[t.id for t in banner.tags],
+            )
+        ]
         banner.tags = tags_list
         self.db_connection.add(banner)
         await self.db_connection.commit()
@@ -156,3 +164,8 @@ class BannerRepository:
         banner = await self.get_by_banner_id(banner_id=banner_id)
         await self.db_connection.delete(banner)
         await self.db_connection.commit()
+
+    async def get_banner_versions_list(self, *, banner_id: int):
+        banner = await self.get_by_banner_id(banner_id=banner_id)
+        versions = list(banner.versions)
+        return versions

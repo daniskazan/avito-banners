@@ -13,6 +13,10 @@ class Settings(pydantic_settings.BaseSettings):
         "DB_URL",
         f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}",
     )
+    DB_URL_DEFAULT_DRIVER: str = os.environ.get(
+        "DB_URL_DEFAULT_DRIVER",
+        f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}",
+    )
     DEBUG: bool = os.environ.get("DEBUG", True)
     APP_HOST: str = os.environ.get("APP_HOST", "0.0.0.0")
     APP_PORT: int = os.environ.get("APP_PORT", 8000)
