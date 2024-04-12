@@ -3,7 +3,6 @@ from typing import Generic, TypeVar
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, alias_generators, conint
 
-
 T = TypeVar("T")
 ErrorDescription = TypeVar("ErrorDescription")
 
@@ -13,6 +12,7 @@ class APIResponse(JSONResponse, Generic[T]):
     когда будем возвращать клиенту OkResponse/BadResponse
     этот класс проставит статус ответа в у самого объекта респонса
     """
+
     def render(self, content: T) -> bytes:
         if "statusCode" in content:
             self.status_code = content["statusCode"]
@@ -49,4 +49,3 @@ class BadResponse(PydanticBaseModel, Generic[ErrorDescription]):
     @classmethod
     def new(cls, *, status_code: int, error: ErrorDescription):
         return cls(status_code=status_code, error=error)
-
