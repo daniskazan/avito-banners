@@ -20,7 +20,7 @@ app.include_router(router=router)
 @app.exception_handler(RequestValidationError)
 def handler_422(request: Request, exc: RequestValidationError):  # noqa
     return JSONResponse(
-        status_code=status.HTTP_400_BAD_REQUEST, content={"error": str(exc)}
+        status_code=status.HTTP_400_BAD_REQUEST, content={"error": exc.args}
     )
 
 

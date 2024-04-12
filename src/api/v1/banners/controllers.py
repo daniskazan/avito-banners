@@ -32,7 +32,7 @@ banners = APIRouter(prefix="/banners", tags=["Banners"])
 @banners.get(
     "/user_banner",
     summary="Получение баннера для пользователя",
-    name="banners:user_banner",
+    name="banners:user-banner",
 )
 async def user_banner(
     request: Request,
@@ -73,7 +73,10 @@ async def get_banners(
     return OkResponse.new(status_code=status.HTTP_200_OK, payload=data)
 
 
-@banners.post("/banner")
+@banners.post(
+    "/banner",
+    name="banners:create-banner",
+)
 async def create_banner(
     request: Request,
     body: BannerCreateRequest,
