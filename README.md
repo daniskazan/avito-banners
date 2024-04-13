@@ -36,6 +36,7 @@ src
 make lint - runs ruff linter
 make test - runs tests
 make dc-up  - serves the app
+make fill-db - creates samples of features and tags
 ```
 
 # Примеры запросов
