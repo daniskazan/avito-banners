@@ -29,3 +29,11 @@ src
 ```
 
 ![](./docs/imgs/benchmarks.png)
+
+
+## Makefile
+```shell
+make lint - runs ruff linter
+make test - runs tests
+make dc-up  - serves the app
+```
