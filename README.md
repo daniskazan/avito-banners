@@ -37,3 +37,21 @@ make lint - runs ruff linter
 make test - runs tests
 make dc-up  - serves the app
 ```
+
+# Примеры запросов
+```shell
+
+curl -X 'POST' \
+  'http://localhost:8000/api/v1/banners/banner' \
+  -H 'accept: application/json' \
+  -H 'Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.7DXwNbHtZoPUCoGv_Odt-jIOY2bBJDhBJeZKwpWCvCM' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "tagIds": [
+    1
+  ],
+  "featureId": 1,
+  "content": {},
+  "isActive": false
+}'
+```
