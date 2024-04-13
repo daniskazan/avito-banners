@@ -55,3 +55,12 @@ curl -X 'POST' \
   "isActive": false
 }'
 ```
+```shell
+Response
+{
+  "statusCode": 201,
+  "payload": {
+    "bannerId": 11
+  }
+}
+```
