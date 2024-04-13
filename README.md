@@ -41,7 +41,7 @@ make fill-db - creates samples of features and tags
 
 # Примеры запросов
 ```shell
-
+Создание баннера
 curl -X 'POST' \
   'http://localhost:8000/api/v1/banners/banner' \
   -H 'accept: application/json' \
@@ -65,3 +65,24 @@ Response
   }
 }
 ```
+
+```shell
+Получение баннера для пользователя
+curl -X 'GET' \
+  'http://127.0.0.1:8000/api/v1/banners/user_banner?tag_id=1&feature_id=1&use_last_revision=true' \
+  -H 'accept: application/json' \
+  -H 'Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.7DXwNbHtZoPUCoGv_Odt-jIOY2bBJDhBJeZKwpWCvCM'
+```
+```
+Response
+{
+  "statusCode": 200,
+  "payload": {
+    "title": "Movies",
+    "url": "https://google.com"
+  }
+}
+```
+
+## OpenAPI docs 
+Доступно по http://localhost:8000/docs

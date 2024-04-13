@@ -17,7 +17,7 @@ dc-down:
 
 ## Db init
 insert-data:
-	docker exec -it pg-banner-local psql -U banner -d banner -c "INSERT INTO tags (tag_name) VALUES ('tag1'), ('tag2');INSERT INTO features (feature_name) VALUES ('feature1'), ('feature2');"
+	docker exec -it pg-banner-local psql -U banner -d banner -c "INSERT INTO tags (tag_name) VALUES (substr(md5(random()::text), 1, 10)), (substr(md5(random()::text), 1, 10));INSERT INTO features (feature_name) VALUES (substr(md5(random()::text), 1, 10)), (substr(md5(random()::text), 1, 10));"
 show-data:
 	docker exec -it pg-banner-local psql -U banner -d banner -c "SELECT * FROM banners;"
 	docker exec -it pg-banner-local psql -U banner -d banner -c "SELECT * FROM features;"
