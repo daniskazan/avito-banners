@@ -25,7 +25,11 @@ class BannerORM(BaseORMModel):
         lazy="joined", back_populates="banners"
     )
     tags: orm.Mapped[list["TagORM"]] = orm.relationship(  # noqa
-        lazy="joined", back_populates="banners", secondary="banners_tags"
+        lazy="joined",
+        back_populates="banners",
+        secondary="banners_tags",
+        cascade="all, delete",
+        passive_deletes=True,
     )
     versions: orm.Mapped[list["BannerVersionHistory"]] = orm.relationship(
         lazy="joined", back_populates="banner"
@@ -44,6 +48,7 @@ class TagORM(BaseORMModel):
         lazy="joined",
         back_populates="tags",
         secondary="banners_tags",
+        passive_deletes=True,
     )
 
     def __repr__(self):
@@ -73,14 +78,16 @@ class BannerTagORM(BaseORMModel):
         UniqueConstraint("banner_id", "tag_id", name="banner_id_tag_id_uniq"),
     )
     banner_id: orm.Mapped[int] = orm.mapped_column(
-        ForeignKey("banners.id"),
+        ForeignKey("banners.id", ondelete="CASCADE"),
     )
     tag_id: orm.Mapped[int] = orm.mapped_column(
-        ForeignKey("tags.id"),
+        ForeignKey("tags.id", ondelete="CASCADE"),
     )
 
-    banner: orm.Mapped["BannerORM"] = orm.relationship(lazy="joined")
-    tag: orm.Mapped["TagORM"] = orm.relationship(lazy="joined")
+    banner: orm.Mapped["BannerORM"] = orm.relationship(
+        lazy="joined", cascade="all, delete"
+    )
+    tag: orm.Mapped["TagORM"] = orm.relationship(lazy="joined", cascade="all, delete")
 
     def __repr__(self):
         return f"BannerTagORM ID-{self.id}"

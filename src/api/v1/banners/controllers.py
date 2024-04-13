@@ -17,7 +17,7 @@ from api.v1.banners.serializers.get_banner_version_history import (
 )
 from api.v1.banners.serializers.get_user_banner import GetUserBannerRequest
 from api.v1.banners.serializers.update_banner import BannerPartialUpdateRequest
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, BackgroundTasks, Depends, Request, status
 from services.banner_service import BannerService
 from storages.banners.db.exceptions import (
     BannerNotFoundException,
@@ -145,7 +145,7 @@ async def delete_banner(
 async def get_banner_history(
     request: Request,
     banner_id: int,
-    # user: User = Depends(admin_only),
+    user: User = Depends(admin_only),
     banner_service: BannerService = Depends(get_banner_service),
 ):
     try:
@@ -163,3 +163,19 @@ async def get_banner_history(
             for version in versions_list
         ],
     )
+
+
+@banners.delete("/banner/drop/")
+async def delete_banners_by_feature_and_tags(
+    request: Request,
+    background: BackgroundTasks,
+    tag_id: int = None,
+    feature_id: int = None,
+    banner_service: BannerService = Depends(get_banner_service),
+):
+    background.add_task(
+        banner_service.delete_banners_by_feature_or_tag_id,
+        feature_id=feature_id,
+        tag_id=tag_id,
+    )
+    return OkResponse.new(status_code=status.HTTP_202_ACCEPTED, payload=None)

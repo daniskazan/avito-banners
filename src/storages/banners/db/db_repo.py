@@ -16,6 +16,9 @@ from storages.banners.db.exceptions import (
 from storages.banners.db.query_builders.check_banner_exists_query import (
     CheckBannerExistsQueryBuilder,
 )
+from storages.banners.db.query_builders.delete_banners_by_feature_or_tag import (
+    DeleteBannersByFeatureOrTagQueryBuilder,
+)
 from storages.banners.db.query_builders.get_banner_by_feature_and_tag_id import (
     GetUserBannerQueryBuilder,
 )
@@ -169,3 +172,13 @@ class BannerRepository:
         banner = await self.get_by_banner_id(banner_id=banner_id)
         versions = list(banner.versions)
         return versions
+
+    async def delete_banners_by_feature_or_tag_id(
+        self, *, feature_id: int | None, tag_id: int | None
+    ):
+        query = DeleteBannersByFeatureOrTagQueryBuilder.build(
+            feature_id=feature_id, tag_id=tag_id
+        )
+        await self.db_connection.execute(query)
+        await self.db_connection.commit()
+        return
